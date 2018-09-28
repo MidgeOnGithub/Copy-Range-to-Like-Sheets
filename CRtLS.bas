@@ -45,22 +45,56 @@ This macro's usefulness extends to, but is not limited to, cases where the users
 
 
 Option Explicit
-Sub CRVtPSUF()
+Sub CRtLS()
+
+'Welcome and guidance message.
+MsgBox "This macro will only operate on sheets with like names. You will be given a series of prompts to guide you through the process, with multiple opportunities to cancel if something looks wrong." & vbCr & vbCr & "The following prompt determines if you wish to identify sheets by prefix, suffix, or both.", vbInformation, "Welcome to the CRtLS Macro!"
+
+Dim SearchType As Variant
+
+Do
+    SearchType = InputBox("How should we search for sheet names?" & vbCr & vbCr & "1 = Prefix Only" & vbCr & "2 = Suffix Only" & vbCr & "3 = Both Prefix and Suffix", "Prefix, Suffix, or Both?", "1")
+Loop Until SearchType > 0 And SearchType <= 3
+
+If MsgBox("1 = Prefix Only" & vbCr & "2 = Suffix Only" & vbCr & "3 = Both Prefix and Suffix" & vbCr & vbCr & "Response interpreted as " & SearchType & ". Is this ok?", vbQuestion + vbOKCancel, "Confirm Input.") = vbCancel Then GoTo Cancelled
+
+'Determined if searching by prefix and/or suffix! =============================
 
 Dim TWB As Workbook 'Shorthand.
 Set TWB = ThisWorkbook
 
-Dim Prefix As String 'To determine which sheets to edit.
+Dim Prefix As String, Suffix As String 'To determine which sheets to edit.
+Dim SuffixLength As Integer 'Needed when doing worksheet name checks
 
-'User Input of Prefix
-Prefix = InputBox(Prompt:="Please enter the letter/number/symbol that prefixes sheets you wish to update. Case Sensitive.", _
-                  Title:="Input Desired Sheet Prefix")
+If SearchType = 1 Or 3 Then 'Values corresponding to Prefix Only and Both will run this.
 
-If StrPtr(Prefix) = 0 Then GoTo Cancelled 'StrPtr = 0 if user cancels or otherwise escapes out of Inputbox.
+    'User Input of Prefix
+    Prefix = InputBox(Prompt:="Please enter the letter/number/symbol that prefixes sheets you wish to update. Case Sensitive.", _
+                      Title:="Input Desired Sheet Prefix")
 
-If InStr(TWB.ActiveSheet.Name, Prefix) <> 1 Then
+    If StrPtr(Prefix) = 0 Then GoTo Cancelled 'StrPtr = 0 if user cancels or otherwise escapes out of Inputbox.
+
+    If InStr(TWB.ActiveSheet.Name, Prefix) <> 1 Then
+        '!!! Need to create flag or something to modify Cancelled's output
+        GoTo Cancelled
     
-    Call ConfirmStart(TWB, Prefix, "Error")
+    End If
+    
+End If
+
+If SearchType > 1 Then 'Values of 2 or 3 will run this.
+    
+    'User Input of Suffix
+    Suffix = InputBox(Prompt:="Please enter the letter/number/symbol that suffixes sheets you wish to update. Case Sensitive.", _
+                      Title:="Input Desired Sheet Suffix")
+
+    If StrPtr(Suffix) = 0 Then GoTo Cancelled 'StrPtr = 0 if user cancels or otherwise escapes out of Inputbox.
+
+    If InStr(TWB.ActiveSheet.Name, Suffix) Then
+        '!!! Need to create flag or something to modify Cancelled's output
+        GoTo Cancelled
+    
+    End If
     
 End If
 
@@ -76,7 +110,7 @@ If FirstPrefixSheetIndex <> TWB.ActiveSheet.Index Then 'Checks if first sheet wi
 
 End If
 
-'Prefix and StartIndex successfully determined. ===============================
+'Prefix/Suffix and StartIndex successfully determined! ===============================
 
 'In case users have sheets with Prefix at the end of their workbook which are different and/or they don't wish to change. _
 One of the limitations of this macro is that it can only be given one start and end point.
@@ -90,7 +124,7 @@ If Not EndIndex > StartIndex Then 'Prevents errors by not calling further proces
     MsgBox "Current sheet is the end sheet, macro not needed. Cancelling."
     GoTo Cancelled
     
-ElseIf MsgBox("Currently, value or formula data from " & StartWS.Name & " sheet will be copied to all " & Prefix & " sheets. If this is ok, press Yes. If you have a specific sheet after which the macro should stop, press No.", vbYesNo, "Ending Sheet Question") = vbNo Then
+ElseIf MsgBox("Currently, value or formula data from " & FirstPrefixSheetName & " sheet will be copied to all " & Prefix & " sheets. If this is ok, press Yes. If you have a specific sheet after which the macro should stop, press No.", vbYesNo, "Ending Sheet Question") = vbNo Then
     EndIndex = WhereEnd(TWB, Prefix, StartIndex, EndIndex) 'They need it to stop somewhere in particular: WhereEnd finds out where.
     
 End If
@@ -148,7 +182,7 @@ End If
 
 Loop
 
-'Successfully determined ExtractValues. =======================================
+'Successfully determined if extracting values or formulas. =======================================
 
 'Iterate through MatchRge to plug values/formulas into WhatToCopy array.
 For i = 1 To RgeRows
