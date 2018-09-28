@@ -1,0 +1,4 @@
+##### Untested changes (2018 Sep 28 suffix_support branch upload)
+- Implemented better Cancelled messages. 
+- Mostly got "Functions" integrated back into body of Sub. 
+- Some Suffix procedures created, but the process remains incomplete. 

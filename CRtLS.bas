@@ -5,44 +5,45 @@ Attribute VB_Name = "CRtLS"
 'AUTHOR: Cody M Mason https://github.com/MidgeOnGithub
 
 
-'LICENSE: _
- _
-The MIT License (MIT) _
-Copyright (c) 2018 Cody M Mason _
- _
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: _
- _
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. _
- _
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+'LICENSE: 
+
+'The MIT License (MIT)
+
+'Copyright (c) 2018 Cody M Mason
+
+'Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+'The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+'THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-'DESCRIPTION: _
-CRtLS is an attempt at a user-friendly macro which guides the user through the process of copying values or formulas from a first worksheet into like-named sheets in a more immediate manner rather than manually copy-and-pasting into all sheets. _
- _
-While several error-preventing methods have been implemented to prevent undesired outcomes or crashes from this macro, irregardless of the user's experience and knowledge with VBA and/or Excel, saving before running this macro is recommended, especially for large projects/worksheets. This is because its changes cannot be undone within a continuous instance of Excel. The user must re-load if something undesirable happens. _
- _
-It can do so using either fixed formulas that set respective cells from other sheets equal to the cells in the first sheet, or by using the same relative formula from the first sheet, allowing for non-equal values but with samely calculations for all sheets. _
- _
-In the case of referencing the value from the first sheet, running this macro just once forever permits the user to change *all sheets indicated to be edited by this macro* by only changing the first sheet. _
-    -- If additional like-named sheets or values to be copied are added later, and the user wants them to also contain the value, the macro will need re-run. _
-In the case of copying relative formulas, the macro must be re-run if the formula(s) on the first sheet is/are changed. _
- _
-The user picks the "Prefix" by which the macro finds which sheets to edit. _
-The user may select their ActiveSheet as the "StartIndex," overriding the default first sheet with Prefix. _
-    -- Useful if the first sheet(s) is/are different and don't want to be copied, perhaps because they are introductory or otherwise informative sheets. _
-The user may also elect a specific "EndIndex" by naming a sheet after which they'd like to stop the macro. _
-    -- Useful if the final sheet(s) is/are different and don't want to be copied, perhaps because they contain summaries of the previous sheets. _
-The user chooses between copying either values or relative formulas. _
- _
-There are several assumptions this macro makes: _
-    The user wants the *same range* from the first sheet to be edited on all other sheets. _
-        -- The cell ranges do not adjust or offset as values/formula are copied to other worksheets. Therefore, the user needs to ensure the ranges are the same for all sheets before running this macro. _
-    The user wants the *same value/formula* from the first sheet no all other sheets. _
-        -- This macro will not increment, sum, or perform any similar modification to the values/formulas as it goes through successive worksheets. _
- _
-This macro's usefulness extends to, but is not limited to, cases where the users wishes to edit numerous like-named sheets samely-format, such as inventory tabs, quantity sheets, or financial analysis sheets.
+'DESCRIPTION:
 
+'CRtLS is an attempt at a user-friendly macro which guides the user through the process of copying values or formulas from a first worksheet into like-named sheets in a more immediate manner rather than manually copy-and-pasting into all sheets.
+
+'While several error-preventing methods have been implemented to prevent undesired outcomes or crashes from this macro, irregardless of the user's experience and knowledge with VBA and/or Excel, saving before running this macro is recommended, especially for large projects/worksheets. This is because its changes cannot be undone within a continuous instance of Excel. The user must re-load if something undesirable happens.
+
+'It can do so using either fixed formulas that set respective cells from other sheets equal to the cells in the first sheet, or by using the same relative formula from the first sheet, allowing for non-equal values but with samely calculations for all sheets.
+
+'In the case of referencing the value from the first sheet, running this macro just once forever permits the user to change *all sheets indicated to be edited by this macro* by only changing the first sheet.
+'   -- If additional like-named sheets or values to be copied are added later, and the user wants them to also contain the value, the macro will need re-run. _
+'In the case of copying relative formulas, the macro must be re-run if the formula(s) on the first sheet is/are changed.
+
+'The user picks the "Prefix" by which the macro finds which sheets to edit.
+'The user may select their ActiveSheet as the "StartIndex," overriding the default first sheet with Prefix.
+'   -- Useful if the first sheet(s) is/are different and don't want to be copied, perhaps because they are introductory or otherwise informative sheets.
+'The user may also elect a specific "EndIndex" by naming a sheet after which they'd like to stop the macro.
+'   -- Useful if the final sheet(s) is/are different and don't want to be copied, perhaps because they contain summaries of the previous sheets.
+'The user chooses between copying either values or relative formulas.
+
+'There are several assumptions this macro makes: _
+    'The user wants the *same range* from the first sheet to be edited on all other sheets.
+    '   -- The cell ranges do not adjust or offset as values/formula are copied to other worksheets. Therefore, the user needs to ensure the ranges are the same for all sheets before running this macro.
+    'The user wants the *same value/formula* from the first sheet no all other sheets.
+    '   -- This macro will not increment, sum, or perform any similar modification to the values/formulas as it goes through successive worksheets.
+
+'This macro's usefulness extends to, but is not limited to, cases where the users wishes to edit numerous like-named sheets samely-format, such as inventory tabs, quantity sheets, or financial analysis sheets.
 
 Option Explicit
 Sub CRtLS()
@@ -54,6 +55,7 @@ Dim SearchType As Variant
 
 Do
     SearchType = InputBox("How should we search for sheet names?" & vbCr & vbCr & "1 = Prefix Only" & vbCr & "2 = Suffix Only" & vbCr & "3 = Both Prefix and Suffix", "Prefix, Suffix, or Both?", "1")
+
 Loop Until SearchType > 0 And SearchType <= 3
 
 If MsgBox("1 = Prefix Only" & vbCr & "2 = Suffix Only" & vbCr & "3 = Both Prefix and Suffix" & vbCr & vbCr & "Response interpreted as " & SearchType & ". Is this ok?", vbQuestion + vbOKCancel, "Confirm Input.") = vbCancel Then GoTo Cancelled
@@ -77,13 +79,13 @@ Dim SuffixLength As Integer 'Needed when doing worksheet name checks
 If SearchType = 1 Or 3 Then 'Values corresponding to Prefix Only and Both will run this.
 
     'User Input of Prefix
-    Prefix = InputBox(Prompt:="Please enter the letter/number/symbol that prefixes sheets you wish to update. Case Sensitive.", _
-                      Title:="Input Desired Sheet Prefix")
+    Prefix = InputBox(Prompt:="Please enter the letter/number/symbol that prefixes sheets you wish to update. Case Sensitive.", Title:="Input Desired Sheet Prefix")
 
-    If StrPtr(Prefix) = 0 Then GoTo Cancelled 'StrPtr = 0 if user cancels or otherwise escapes out of Inputbox.
+    If StrPtr(Prefix) = 0 Then 
+        GoTo Cancelled 'StrPtr = 0 if user cancels or otherwise escapes out of Inputbox with no input given.
 
-    If InStr(ActShtName, Prefix) <> 1 Then
-        '!!! Need to create flag or something to modify Cancelled's output
+    ElseIf InStr(ActShtName, Prefix) <> 1 Then
+        MsgFlag = 10
         GoTo Cancelled
     
     End If
@@ -93,35 +95,73 @@ End If
 If SearchType > 1 Then 'Values of 2 or 3 will run this.
     
     'User Input of Suffix
-    Suffix = InputBox(Prompt:="Please enter the letter/number/symbol that suffixes sheets you wish to update. Case Sensitive.", _
-                      Title:="Input Desired Sheet Suffix")
+    Suffix = InputBox(Prompt:="Please enter the letter/number/symbol that suffixes sheets you wish to update. Case Sensitive.", Title:="Input Desired Sheet Suffix")
 
-    If StrPtr(Suffix) = 0 Then GoTo Cancelled 'StrPtr = 0 if user cancels or otherwise escapes out of Inputbox.
+    If StrPtr(Suffix) = 0 Then 
+        GoTo Cancelled 'StrPtr = 0 if user cancels or otherwise escapes out of Inputbox.
 
-    If InStr(ActShtName, Suffix) Then
-        '!!! Need to create flag or something to modify Cancelled's output
+    ElseIf InStr(ActShtName, Suffix) Then
+        MsgFlag = 10
         GoTo Cancelled
     
     End If
     
 End If
 
-Dim FirstPrefixSheetIndex As Integer, FirstPrefixSheetName As String
-FirstPrefixSheetIndex = WhereFirstPrefix(WShts, Prefix) 'Determines sheet index from which to copy headers.
+Dim FirstPrefixSheetIndex As Integer 'Determines sheet index from which to copy headers.
+Dim FirstPrefixSheetName As String
+
+Dim o As Integer
+
+For o = 1 To WShts.Count
+    
+    If InStr(WShts(o).Name, Prefix) = 1 Then
+        FirstPrefixSheetIndex = o 'Found the first sheet with Prefix at beginning.
+        Exit For 'Go back to Sub
+
+    ElseIf o >= WShts.Count And InStr(WShts(o).Name, Prefix) <> 1 Then 'In the case the For Each goes through all sheets but none have the prefix.
+        MsgFlag = 30
+        GoTo Cancelled
+
+    End If
+    
+Next o
+
 FirstPrefixSheetName = WShts(FirstPrefixSheetIndex).Name
 
 Dim StartIndex As Integer
 
 If FirstPrefixSheetIndex <> ActShtIndex Then 'Checks if first sheet with prefix doesn't equal current sheet's prefix.
-'If it does equal, continue as normal.
-    StartIndex = ConfirmStart(ActShtIndex, Prefix, "") 'Calling this prompts user to confirm they don't want the first Prefix sheet to be where the macro starts.
 
-End If
+    'Because the sub uses ActSht to set MatchRge, this If attempts to prevents the user from changing something from a "wrong" sheet.
+
+    If MsgBox("You are not currently in the first sheet with prefix, " & Prefix & "." & vbCr & vbCr & "If your intention is to run the macro beginning instead at this sheet, hit OK. Otherwise, Cancel and re-call this macro while on the first sheet.", vbOKCancel, "Start Sheet Discrepancy") = vbCancel Then
+        GoTo Cancelled
+       
+    Else
+        FirstPrefixSheetIndex = ActShtIndex
+
+    End If'Calling this prompts user to confirm they don't want the first Prefix sheet to be where the macro starts.
+
+End If 'If it does equal, continue as normal.
+
+For o = 1 To WShts.Count
+    
+    If InStr(WShts(o).Name, Suffix) = Len(WShts(o).Name) - SuffixLength Then
+        WhereFirstSuffix = i 'Found the first sheet with Suffix at end.
+        Exit For 'Go back to Sub
+
+    ElseIf o >= WShts.Count And InStr(WShts(o).Name, Suffix) <> 1 Then 'In the case the For Each goes through all sheets but none have the suffix.
+        MsgFlag = 40
+        GoTo Cancelled
+        
+    End If
+    
+Next o
 
 'Prefix/Suffix and StartIndex successfully determined! ===============================
 
-'In case users have sheets with Prefix at the end of their workbook which are different and/or they don't wish to change. _
-One of the limitations of this macro is that it can only be given one start and end point.
+'In case users have sheets with Prefix at the end of their workbook which are different and/or they don't wish to change. One of the limitations of this macro is that it can only be given one start and end point.
 Dim EndCheck As String
 Dim EndIndex As Integer
 Dim EndWS As Worksheet
@@ -129,7 +169,7 @@ Dim EndWS As Worksheet
 EndIndex = FindEnd(WShts, Prefix, StartIndex) 'For vbYes, finds last sheet starting from StartIndex.
 
 If Not EndIndex > StartIndex Then 'Prevents errors by not calling further processes if StartIndex is the last sheet. Macro is useless in such a case.
-    MsgBox "Current sheet is the end sheet, macro not needed. Cancelling."
+    MsgFlag = 20
     GoTo Cancelled
     
 ElseIf MsgBox("Currently, value or formula data from " & FirstPrefixSheetName & " sheet will be copied to all " & Prefix & " sheets. If this is ok, press Yes. If you have a specific sheet after which the macro should stop, press No.", vbYesNo, "Ending Sheet Question") = vbNo Then
@@ -169,24 +209,25 @@ Count = 0
 
 Do
 
-If Count > 1 Then
-    If MsgBox("Do you wish to cancel the macro?", vbYesNo, "Cancel Macro?") = vbYes Then GoTo Cancelled
-End If
-
-If MsgBox("Do you wish to copy values? Press No if you wish to copy its Formulas instead.", vbYesNo, "Confirm Extraction of Values") = vbYes Then
-    ExtractValues = True
-    Exit Do
+    If Count > 1 Then
+        If MsgBox("Do you wish to cancel the macro?", vbYesNo, "Cancel Macro?") = vbYes Then GoTo Cancelled
     
-End If
+    End If
 
-If MsgBox("Do you wish to copy relative formulas? Press No if you wish to be re-prompted to copy its values.", vbYesNo, "Confirm Extraction of Relative Formulas") = vbYes Then
-    ExtractValues = False
-    Exit Do
+    If MsgBox("Do you wish to copy values? Press No if you wish to copy its Formulas instead.", vbYesNo, "Confirm Extraction of Values") = vbYes Then
+        ExtractValues = True
+        Exit Do
     
-Else
-    Count = Count + 1
+    End If
 
-End If
+    If MsgBox("Do you wish to copy relative formulas? Press No if you wish to be re-prompted to copy its values.", vbYesNo, "Confirm Extraction of Relative Formulas") = vbYes Then
+        ExtractValues = False
+        Exit Do
+    
+    Else
+        Count = Count + 1
+
+    End If
 
 Loop
 
@@ -254,42 +295,36 @@ End If
 MsgBox Prefix & "-prefixed sheets from " & WShts(StartIndex).Name & " to " & EndWS.Name & " now have matching " & SuccessType & " for range " & MatchRge.Address & ".", , "Success!"
 End
 
-'Success! Unless we forcibily cancel or user voluntarily cancels. =============
+'Success! Unless somehow the macro is cancelled... ===================================
 
 Cancelled:
 
-MsgBox "Macro Cancelled. No edits made."
-End
-
-End Sub
-Private Function ConfirmStart(ActShtIndex As Integer, Prefix As String, Flag As String)
-    
-'Because the sub uses ActSht to set MatchRge, this code attempts to prevents the user _
-from changing something from a "wrong" sheet or having to re-run later due to incompleteness.
-    
+Dim MsgFlag As Integer
 Dim MsgTxt As String
 Dim vbType As VbMsgBoxStyle
+
+If MsgFlag = 10 Then
+    MsgTxt = "You need to call this macro from a sheet with the indicated prefix/suffix in its name."
+    vbType = vbInformation
+
+ElseIf MsgFlag = 20 Then
+    MsgTxt = "Current sheet is the last sheet with like name, macro is unnecessary."    
+    vbType = vbInformation
     
-If Flag = "" Then
-    MsgTxt = "You are not currently in the first sheet with prefix, " & Prefix & ". If your intention is to run the macro beginning instead at this sheet, hit OK. Otherwise, Cancel and re-call this macro while on the first sheet."
-    vbType = vbOKCancel
+ElseIf MsgFlag = 30 Then
+    MsgTxt = "Failed to find any sheet starting with " & Prefix & "."
+    vbType = vbCritical
+
+ElseIf MsgFlag = 40 Then
+    MsgTxt = "Failed to find any sheet ending with " & Suffix & "."
+    vbType = vbCritical
     
-Else
-    MsgTxt = "You are not on a sheet with prefix " & Prefix & ". Switch to such a sheet, then re-call this macro."
-    vbType = vbOKOnly
-    End
-        
-End If
-    
-If MsgBox(MsgTxt, vbOKCancel, "Start Sheet Discrepancy") = vbCancel Then
-    MsgBox "Macro Cancelled. No edits made." 'Cancels.
-    End
-        
-Else
-    ConfirmStart = ActShtIndex
 End If
 
-End Function
+MsgBox MsgText & vbCR & vbCR & "Macro Cancelled. No edits made.", vbType + vbOKOnly, "Macro Cancelled"
+
+End Sub
+
 Private Function FindEnd(WShts As Worksheets, Prefix As String, StartIndex As Integer) As Integer
 
 Dim i As Integer
@@ -303,6 +338,7 @@ For i = StartIndex To WShts.Count
 Next i
 
 End Function
+
 Private Function WhereEnd(WShts As Worksheets, ActShtName As String, Prefix As String, StartIndex As Integer, EndIndex As Integer) As Integer
 
 Dim i As Long
@@ -350,25 +386,5 @@ Exit Function
 Cancelled:
     MsgBox "Macro Cancelled."
     End
-
-End Function
-Private Function WhereFirstPrefix(WShts As Worksheets, Prefix As String)
-
-Dim i As Long
-
-For i = 1 To WShts.Count
-    
-    If InStr(WShts(i).Name, Prefix) = 1 Then
-        WhereFirstPrefix = i 'Found the first sheet with Prefix prefix.
-        Exit Function 'Go back to Sub
-    End If
-
-    If i >= WShts.Count And InStr(WShts(i).Name, Prefix) <> 1 Then 'In the case the For Each goes through all sheets but none have the prefix.
-        MsgBox "Failed to find any sheet starting with " & Prefix & ", cancelling.", vbCritical
-        End
-        
-    End If
-    
-Next i
 
 End Function
