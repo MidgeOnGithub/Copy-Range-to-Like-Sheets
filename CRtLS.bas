@@ -48,7 +48,7 @@ Option Explicit
 Sub CRtLS()
 
 'Welcome and guidance message.
-MsgBox "This macro will only operate on sheets with like names. You will be given a series of prompts to guide you through the process, with multiple opportunities to cancel if something looks wrong." & vbCr & vbCr & "The following prompt determines if you wish to identify sheets by prefix, suffix, or both.", vbInformation, "Welcome to the CRtLS Macro!"
+MsgBox "This macro will only operate on sheets with like names. You will be given a series of prompts to guide you through the macro, with multiple opportunities to cancel if something looks wrong." & vbCr & vbCr & "The following prompt determines if you wish to identify sheets by prefix, suffix, or both.", vbInformation, "Welcome to the CRtLS Macro!"
 
 Dim SearchType As Variant
 
@@ -60,10 +60,18 @@ If MsgBox("1 = Prefix Only" & vbCr & "2 = Suffix Only" & vbCr & "3 = Both Prefix
 
 'Determined if searching by prefix and/or suffix! =============================
 
-Dim TWB As Workbook 'Shorthand.
-Set TWB = ThisWorkbook
+Dim TWB As Workbook, WShts As Worksheets, ActSht As Worksheet, ActShtName As String, ActShtIndex As Integer 'Shorthands.
 
-Dim Prefix As String, Suffix As String 'To determine which sheets to edit.
+Set TWB = ThisWorkbook
+Set WShts = TWB.Worksheets
+Set ActSht = TWB.ActiveSheet
+ActShtName = ActSht.Name
+ActShtIndex = ActSht.Index
+
+'Shorthands declared and set. =================================================
+
+Dim Prefix As String
+Dim Suffix As String 'User must say what sheets to edit.
 Dim SuffixLength As Integer 'Needed when doing worksheet name checks
 
 If SearchType = 1 Or 3 Then 'Values corresponding to Prefix Only and Both will run this.
@@ -74,7 +82,7 @@ If SearchType = 1 Or 3 Then 'Values corresponding to Prefix Only and Both will r
 
     If StrPtr(Prefix) = 0 Then GoTo Cancelled 'StrPtr = 0 if user cancels or otherwise escapes out of Inputbox.
 
-    If InStr(TWB.ActiveSheet.Name, Prefix) <> 1 Then
+    If InStr(ActShtName, Prefix) <> 1 Then
         '!!! Need to create flag or something to modify Cancelled's output
         GoTo Cancelled
     
@@ -90,7 +98,7 @@ If SearchType > 1 Then 'Values of 2 or 3 will run this.
 
     If StrPtr(Suffix) = 0 Then GoTo Cancelled 'StrPtr = 0 if user cancels or otherwise escapes out of Inputbox.
 
-    If InStr(TWB.ActiveSheet.Name, Suffix) Then
+    If InStr(ActShtName, Suffix) Then
         '!!! Need to create flag or something to modify Cancelled's output
         GoTo Cancelled
     
@@ -99,14 +107,14 @@ If SearchType > 1 Then 'Values of 2 or 3 will run this.
 End If
 
 Dim FirstPrefixSheetIndex As Integer, FirstPrefixSheetName As String
-FirstPrefixSheetIndex = WhereFirstPrefix(TWB, Prefix) 'Determines sheet index from which to copy headers.
-FirstPrefixSheetName = TWB.Worksheets(FirstPrefixSheetIndex).Name
+FirstPrefixSheetIndex = WhereFirstPrefix(WShts, Prefix) 'Determines sheet index from which to copy headers.
+FirstPrefixSheetName = WShts(FirstPrefixSheetIndex).Name
 
 Dim StartIndex As Integer
 
-If FirstPrefixSheetIndex <> TWB.ActiveSheet.Index Then 'Checks if first sheet with prefix doesn't equal current sheet's prefix.
+If FirstPrefixSheetIndex <> ActShtIndex Then 'Checks if first sheet with prefix doesn't equal current sheet's prefix.
 'If it does equal, continue as normal.
-    StartIndex = ConfirmStart(TWB, Prefix, "") 'Calling this prompts user to confirm they don't want the first Prefix sheet to be where the macro starts.
+    StartIndex = ConfirmStart(ActShtIndex, Prefix, "") 'Calling this prompts user to confirm they don't want the first Prefix sheet to be where the macro starts.
 
 End If
 
@@ -118,18 +126,18 @@ Dim EndCheck As String
 Dim EndIndex As Integer
 Dim EndWS As Worksheet
 
-EndIndex = FindEnd(TWB, Prefix, StartIndex) 'For vbYes, finds last sheet starting from StartIndex.
+EndIndex = FindEnd(WShts, Prefix, StartIndex) 'For vbYes, finds last sheet starting from StartIndex.
 
 If Not EndIndex > StartIndex Then 'Prevents errors by not calling further processes if StartIndex is the last sheet. Macro is useless in such a case.
     MsgBox "Current sheet is the end sheet, macro not needed. Cancelling."
     GoTo Cancelled
     
 ElseIf MsgBox("Currently, value or formula data from " & FirstPrefixSheetName & " sheet will be copied to all " & Prefix & " sheets. If this is ok, press Yes. If you have a specific sheet after which the macro should stop, press No.", vbYesNo, "Ending Sheet Question") = vbNo Then
-    EndIndex = WhereEnd(TWB, Prefix, StartIndex, EndIndex) 'They need it to stop somewhere in particular: WhereEnd finds out where.
+    EndIndex = WhereEnd(WShts, ActShtName, Prefix, StartIndex, EndIndex) 'They need it to stop somewhere in particular: WhereEnd finds out where.
     
 End If
     
-Set EndWS = TWB.Worksheets(EndIndex)
+Set EndWS = WShts(EndIndex)
     
 'EndIndex successfully determined. ============================================
 
@@ -193,7 +201,7 @@ For i = 1 To RgeRows
         If ExtractValues = True Then
             WhatToCopy(i - 1, j - 1) = MatchRge(i, j).Address
             'Now make the values of WhatToCopy into formula referencing first sheet cellvalue by adding StartIndex sheet.
-            WhatToCopy(i - 1, j - 1) = "='" & ActiveSheet.Name & "'!" & WhatToCopy(i - 1, j - 1)
+            WhatToCopy(i - 1, j - 1) = "='" & ActShtName & "'!" & WhatToCopy(i - 1, j - 1)
         
         Else
             WhatToCopy(i - 1, j - 1) = MatchRge(i, j).Formula
@@ -215,13 +223,13 @@ Dim k As Integer
 'The loop that actually does the editing.
 For k = StartIndex + 1 To EndIndex
 
-    If InStr(TWB.Worksheets(k).Name, Prefix) <> 1 Then GoTo NextIteration
+    If InStr(WShts(k).Name, Prefix) <> 1 Then GoTo NextIteration
     
     For i = 1 To RgeRows
     
         For j = 1 To RgeCols
         
-            TWB.Worksheets(k).Range(MatchRge(i, j).Address) = WhatToCopy(i - 1, j - 1)
+            WShts(k).Range(MatchRge(i, j).Address) = WhatToCopy(i - 1, j - 1)
         
         Next j
         
@@ -243,7 +251,7 @@ Else
 
 End If
 
-MsgBox Prefix & "-prefixed sheets from " & TWB.Worksheets(StartIndex).Name & " to " & EndWS.Name & " now have matching " & SuccessType & " for range " & MatchRge.Address & ".", , "Success!"
+MsgBox Prefix & "-prefixed sheets from " & WShts(StartIndex).Name & " to " & EndWS.Name & " now have matching " & SuccessType & " for range " & MatchRge.Address & ".", , "Success!"
 End
 
 'Success! Unless we forcibily cancel or user voluntarily cancels. =============
@@ -254,9 +262,9 @@ MsgBox "Macro Cancelled. No edits made."
 End
 
 End Sub
-Private Function ConfirmStart(TWB As Workbook, Prefix As String, Flag As String)
+Private Function ConfirmStart(ActShtIndex As Integer, Prefix As String, Flag As String)
     
-'Because the sub uses ActiveSheet to set MatchRge, this code attempts to prevents the user _
+'Because the sub uses ActSht to set MatchRge, this code attempts to prevents the user _
 from changing something from a "wrong" sheet or having to re-run later due to incompleteness.
     
 Dim MsgTxt As String
@@ -278,24 +286,24 @@ If MsgBox(MsgTxt, vbOKCancel, "Start Sheet Discrepancy") = vbCancel Then
     End
         
 Else
-    ConfirmStart = TWB.ActiveSheet.Index
+    ConfirmStart = ActShtIndex
 End If
 
 End Function
-Private Function FindEnd(TWB As Workbook, Prefix As String, StartIndex As Integer) As Integer
+Private Function FindEnd(WShts As Worksheets, Prefix As String, StartIndex As Integer) As Integer
 
 Dim i As Integer
 
-For i = StartIndex To TWB.Worksheets.Count
+For i = StartIndex To WShts.Count
 
-    If InStr(TWB.Worksheets(i).Name, Prefix) = 1 Then
+    If InStr(WShts(i).Name, Prefix) = 1 Then
         FindEnd = i
     End If
     
 Next i
 
 End Function
-Private Function WhereEnd(TWB As Workbook, Prefix As String, StartIndex As Integer, EndIndex As Integer) As Integer
+Private Function WhereEnd(WShts As Worksheets, ActShtName As String, Prefix As String, StartIndex As Integer, EndIndex As Integer) As Integer
 
 Dim i As Long
 Dim Confirm As Variant
@@ -307,16 +315,16 @@ Do
 
     If StrPtr(UserIndication) = 0 Then GoTo Cancelled 'Cancel if they cancel.
     
-    For i = 1 To TWB.Worksheets.Count 'Inner loop begins to find index of sheet.
+    For i = 1 To WShts.Count 'Inner loop begins to find index of sheet.
     
-        If TWB.Worksheets(i).Name = UserIndication Then
+        If WShts(i).Name = UserIndication Then
             
             If Not i > StartIndex Then 'Checks if indicated sheet is not after start sheet, will prompt user again if so.
-                MsgBox "Worksheet found, but either equals or comes before " & ThisWorkbook.ActiveSheet.Name & "", vbOKOnly, "Not a Valid Sheet"
+                MsgBox "Worksheet found, but either equals or comes before " & ActShtName & "", vbOKOnly, "Not a Valid Sheet"
                 Exit For
             
             Else
-                WhereEnd MsgBox("Found sheet " & UserIndication & " with index " & i & " out of " & TWB.Worksheets.Count & " total sheets. Confirm by hitting Yes or hit No to select another sheet name.", vbYesNoCancel, "Confirm Sheet to End")
+                WhereEnd MsgBox("Found sheet " & UserIndication & " with index " & i & " out of " & WShts.Count & " total sheets. Confirm by hitting Yes or hit No to select another sheet name.", vbYesNoCancel, "Confirm Sheet to End")
             
                 If WhereEnd = vbYes Or WhereEnd = vbNo Then
                     Exit For
@@ -325,7 +333,7 @@ Do
                        
             End If
             
-        ElseIf i = TWB.Worksheets.Count Then 'End of outer If.
+        ElseIf i = WShts.Count Then 'End of outer If.
             MsgBox "Sheet name not found. This is case sensitive and requires an exact match."
             Exit For
                
@@ -333,7 +341,7 @@ Do
         
     Next i 'Inner loop ends.
 
-Loop Until TWB.Worksheets(i).Name = UserIndication And Confirm = vbYes
+Loop Until WShts(i).Name = UserIndication And Confirm = vbYes
 
 WhereEnd = i
 
@@ -344,18 +352,18 @@ Cancelled:
     End
 
 End Function
-Private Function WhereFirstPrefix(TWB As Workbook, Prefix As String)
+Private Function WhereFirstPrefix(WShts As Worksheets, Prefix As String)
 
 Dim i As Long
 
-For i = 1 To TWB.Worksheets.Count
+For i = 1 To WShts.Count
     
-    If InStr(TWB.Worksheets(i).Name, Prefix) = 1 Then
+    If InStr(WShts(i).Name, Prefix) = 1 Then
         WhereFirstPrefix = i 'Found the first sheet with Prefix prefix.
         Exit Function 'Go back to Sub
     End If
 
-    If i >= TWB.Worksheets.Count And InStr(TWB.Worksheets(i).Name, Prefix) <> 1 Then 'In the case the For Each goes through all sheets but none have the prefix.
+    If i >= WShts.Count And InStr(WShts(i).Name, Prefix) <> 1 Then 'In the case the For Each goes through all sheets but none have the prefix.
         MsgBox "Failed to find any sheet starting with " & Prefix & ", cancelling.", vbCritical
         End
         
