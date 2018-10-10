@@ -1,0 +1,14 @@
+##### (2018 Oct 10 suffix_support branch upload)
+- Completed Prefix, Suffix, Both, and All Sheets SearchTypes
+- Implemented Private Function ArrayDimensionsCount to handle errors near end of module
+- Cleaned code
+
+##### (2018 Oct 05 suffix_support branch upload)
+- Fixed issues created by last branch update, including dysfunctional variables
+- Implemented "All Sheets" search selection
+- Cleaned lots of code
+
+##### Untested changes (2018 Sep 28 suffix_support branch upload)
+- Implemented better Cancelled messages. 
+- Mostly got "Functions" integrated back into body of Sub. 
+- Some Suffix procedures created, but the process remains incomplete. 
