@@ -2,7 +2,7 @@ Attribute VB_Name = "CRtLS"
 
 'Copy Range to Like Sheets [CRtLS] Version 1.1
 
-'AUTHOR: 
+'AUTHOR:
 
     'Cody M Mason https://github.com/MidgeOnGithub
 
@@ -52,7 +52,7 @@ Sub CRtLS()
     Dim ASht As Worksheet: Set ASht = TWB.ActiveSheet
     Dim intWS As Long: intWS = TWB.Worksheets.Count
     Dim strASht As String: strASht = ASht.Name
-    Dim intASht As Long: intASht = ASht.Index      
+    Dim intASht As Long: intASht = ASht.Index
     'Shorthands declared and set! =================================================
     
     'Welcome and guidance message.
@@ -157,7 +157,7 @@ Sub CRtLS()
     Select Case SearchType 'To determine EndIndex value.
         Case 0 'Doesn't need to call the function, just assign EndIndex to last sheet.
             If intASht <> 1 Then 'Checks if user is actually on the first sheet since they indicated to change all sheets.
-                If MsgBox("You indicated All Sheets, but are not calling this macro from the workbook's first sheet. This means only sheets from " & strASht & " on will be edited using information from said sheet." & vbCr & vbCr & "If this was your intention, hit OK to proceed.", vbInformation + vbOKCancel, "Confirm Input") = vbCancel Then GoTo Cancelled    
+                If MsgBox("You indicated All Sheets, but are not calling this macro from the workbook's first sheet. This means only sheets from " & strASht & " on will be edited using information from said sheet." & vbCr & vbCr & "If this was your intention, hit OK to proceed.", vbInformation + vbOKCancel, "Confirm Input") = vbCancel Then GoTo Cancelled
             End If
         
             StartIndex = intASht
@@ -178,8 +178,8 @@ Sub CRtLS()
             If End1 >= End2 Then 'Assign EndIndex to the larger of the End1 and End2.
                 EndIndex = End1
             Else
-                EndIndex = End2    
-            End If    
+                EndIndex = End2
+            End If
     End Select
 
     Set EndWS = TWB.Worksheets(EndIndex)
@@ -196,6 +196,7 @@ Sub CRtLS()
     Dim MatchRge As Range
 
     Do
+        On Error GoTo Cancelled
         'Application.InputBox allows for standard Excel UX for range selection. Type 8 indicates input must be a Range.
         Set MatchRge = Application.InputBox(Prompt:="Use your mouse and/or keyboard to enter a range from sheet " & strASht & ".", Title:="Input Range of Cells", Type:=8)
 
@@ -256,7 +257,7 @@ Sub CRtLS()
         Set kWS = TWB.Worksheets(k)
     
         Select Case SearchType
-            Case 1 'Will only apply changes to sheets with Prefix in the beginning of their name.        
+            Case 1 'Will only apply changes to sheets with Prefix in the beginning of their name.
                 If Not InStr(kWS.Name, Prefix) = 1 Then
                     ReDim Preserve arrShtsSkip(UBound(arrShtsSkip) + 1) 'Increase array size by one.
                     arrShtsSkip(UBound(arrShtsSkip)) = kWS.Name 'Place WS name in end of array.
@@ -291,7 +292,7 @@ Sub CRtLS()
 
     'Will show user the sheets skipped during operation, if desired.
     If ArrDimensions > 0 Then 'If array is dimensionless (ArrDimensions = 0), no sheets were skipped.
-        If MsgBox("Would you like to see the list of sheets skipped during processing?", vbQuestion + vbYesNo, "See Sheets Skipped?") = vbYes Then    
+        If MsgBox("Would you like to see the list of sheets skipped during processing?", vbQuestion + vbYesNo, "See Sheets Skipped?") = vbYes Then
             Dim ShtsSkipList As String: ShtsSkipList = Join(arrShtsSkip, ", ")
             MsgBox "Sheets skipped:" & vbCr & vbCr & ShtsSkipList, vbInformation + vbOKOnly, "List of Sheets Skipped"
         End If
@@ -299,7 +300,7 @@ Sub CRtLS()
 
     Dim strExtractTypeMsg As String
 
-    Select Case ExtractType    
+    Select Case ExtractType
         Case 1
             strExtractTypeMsg = "values matching "
         Case 2
@@ -391,11 +392,11 @@ Private Function WhereEnd(TWB As Workbook, intWS As Long, strASht As String, Sta
                     Confirm = MsgBox("Found sheet " & UserIndication & " with index " & i & " out of " & intWS & " total sheets. Confirm with Yes or select No to search another sheet name.", vbInformation + vbYesNo, "Confirm Sheet to End")
 
                     If Confirm = vbYes Or Confirm = vbNo Then
-                        Exit For            
+                        Exit For
                     ElseIf Confirm = vbCancel Then 'Cancel if they cancel.'
                         WhereEnd = -1
                         Exit Function
-                    End If 
+                    End If
                 End If
 
             ElseIf i = intWS Then 'Alerts user if all sheets were searched and no name match was found.
